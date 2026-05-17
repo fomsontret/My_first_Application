@@ -1,4 +1,12 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">My Application</string>
     <string name="nmedia">NMedia!</string>
+    <string name="description_post_author_avatar" tools:ignore="MissingTranslation"> avatar </string>
+    <string name="description_post_menu" translatable="false">menu</string>
+    <string name="description_post_like" translatable="false">likes</string>
+    <string name="description_post_repost" translatable="false">repost</string>
+    <string name="description_post_views" translatable="false">views</string>
+    <string name="count_likes" translatable="false">12</string>
+    <string name="count_reposts" translatable="false">11</string>
+    <string name="count_views" translatable="false">13</string>
 </resources>
