@@ -36,7 +36,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="@id/avatar"
-        app:layout_constraintTop_tobottomOf="@id/author"
+        app:layout_constraintTop_toBottomOf="@id/author"
         app:layout_constraintStart_toEndOf="@id/avatar"
         android:layout_marginStart="@dimen/padding"
         tools:text="@sample/posts.json/data/published"/>
