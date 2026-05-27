@@ -8,7 +8,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import ru.netology.nmedia.databinding.ActivityMainBinding
 import ru.netology.nmedia.dto.Post
-import ru.netology.nmedia.dto.Repost
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,23 +34,20 @@ class MainActivity : AppCompatActivity() {
             println("DEBUG: like clicked")  // Точка останова здесь
         }
 
-        fun formatCount(count: Int): String {
-            return when {
-                count < 1000 -> count.toString()
-                count < 10_000 -> {
-                    val thousands = count / 1000.0
-                    String.format("%.1fK", thousands).replace(".0K", "K")
-                }
+        binding.avatar.setOnClickListener {
+            println("DEBUG: avatar clicked")
+        }
 
-                count < 1_000_000 -> {
-                    val thousands = count / 1000
-                    "${thousands}K"
-                }
-
-                else -> {
-                    val millions = count / 1_000_000.0
-                    String.format("%.1fM", millions).replace(".0M", "M")
-                }
+        fun formatCount(count: Int): String = when {
+            count < 1000 -> count.toString()
+            count < 10_000 -> {
+                val thousands = (count / 100) / 10.0
+                thousands.toString().replace(".0", "") + "K"
+            }
+            count < 1_000_000 -> "${count / 1000}K"
+            else -> {
+                val millions = (count / 100_000) / 10.0
+                millions.toString().replace(".0", "") + "M"
             }
         }
 
@@ -61,17 +57,16 @@ class MainActivity : AppCompatActivity() {
             published = "21 мая в 18:36",
             content = "Привет, это новая Нетология!...",
             likes = 100,
-            likeByMe = false
+            likeByMe = false,
+            reposts = 5399
         )
-
-        val repostim = Repost(reposts = 10000000)
 
         with(binding) {
             author.text = post.author
             content.text = post.content
             published.text = post.published
             likeCount.text = formatCount(post.likes)
-            repostCount.text = formatCount(repostim.reposts)
+            repostCount.text = formatCount(post.reposts)
 
             like.setImageResource(if (post.likeByMe) R.drawable.ic_hart_red else R.drawable.ic_hart)
 
@@ -83,8 +78,8 @@ class MainActivity : AppCompatActivity() {
             }
 
             repost.setOnClickListener {
-                repostim.reposts++
-                repostCount.text = formatCount(repostim.reposts)
+                post.reposts++
+                repostCount.text = formatCount(post.reposts)
             }
         }
     }
