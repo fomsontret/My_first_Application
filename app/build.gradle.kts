@@ -40,6 +40,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.ads.mobile.sdk)
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.constraintlayout)
