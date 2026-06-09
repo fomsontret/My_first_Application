@@ -1,19 +1,27 @@
 package ru.netology.nmedia.adapter
 
+import android.app.ProgressDialog.show
 import android.view.LayoutInflater
 import androidx.recyclerview.widget.ListAdapter
 import android.view.ViewGroup
+import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
 
-typealias LikeListener = (Post) -> Unit
-typealias RepostListener = (Post) -> Unit
+interface PostListener {
+    fun onRepost (post: Post)
+    fun onLike (post: Post)
+    fun onEdit (post: Post)
+    fun onRemove (post: Post)
+}
 
-class PostsAdapter(private val likeListener: LikeListener, private val repostListener: RepostListener) :
-    ListAdapter <Post, PostsAdapter.PostViewHolder> (PostDiffCallback) {
+class PostsAdapter(
+    private val listener: PostListener
+
+) : ListAdapter <Post, PostsAdapter.PostViewHolder> (PostDiffCallback) {
 
     private fun formatCount(count: Int): String = when {
         count < 1000 -> count.toString()
@@ -30,7 +38,7 @@ class PostsAdapter(private val likeListener: LikeListener, private val repostLis
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): PostViewHolder {
         val binding = CardPostBinding.inflate(LayoutInflater.from(viewGroup.context), viewGroup, false)
-        return PostViewHolder(binding, likeListener, repostListener)
+        return PostViewHolder(binding, listener)
     }
 
     override fun onBindViewHolder(viewHolder: PostViewHolder, position: Int) {
@@ -40,8 +48,7 @@ class PostsAdapter(private val likeListener: LikeListener, private val repostLis
 
     class PostViewHolder(
         private val binding: CardPostBinding,
-        private val likeListener: LikeListener,
-        private val repostListener: RepostListener
+        private val listener: PostListener
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(post: Post) {
@@ -55,8 +62,30 @@ class PostsAdapter(private val likeListener: LikeListener, private val repostLis
                 like.setImageResource(
                     if (post.likeByMe) R.drawable.ic_hart_red else R.drawable.ic_hart
                 )
-                like.setOnClickListener { likeListener(post) }
-                repost.setOnClickListener { repostListener(post) }
+
+                menu.setOnClickListener {
+                    PopupMenu(it.context, it).apply {
+                        inflate(R.menu.post_menu)
+
+                        setOnMenuItemClickListener { item ->
+                            when (item.itemId) {
+                                R.id.remove -> {
+                                    listener.onRemove(post)
+                                    true
+                                }
+                                R.id.edit -> {
+                                    listener.onEdit(post)
+                                    true
+                                }
+                                else -> false
+                            }
+                        }
+                        show()
+                    }
+                }
+
+                like.setOnClickListener { listener.onLike(post) }
+                repost.setOnClickListener { listener.onRepost(post) }
             }
         }
 

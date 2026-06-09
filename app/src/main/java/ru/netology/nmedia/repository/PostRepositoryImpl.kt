@@ -96,4 +96,31 @@ class PostRepositoryImpl : PostRepository {
         }
         data.value = posts
     }
+
+    override fun removeByID(id: Long) {
+        posts = posts.filterNot { it.id == id }
+        data.value = posts
+    }
+
+    override fun save(post: Post) {
+        if (post.id == 0L) {
+            posts  = listOf(
+                post.copy (
+                author = "Me",
+                likes = 0,
+                likeByMe = false,
+                reposts = 0,
+                published = "Now" )
+            ) + posts
+        } else {
+            posts = posts.map {
+                if (it.id == post.id){
+                    it.copy (content = post.content)
+                } else {
+                    it
+                }
+            }
+        }
+        data.value = posts
+    }
 }
