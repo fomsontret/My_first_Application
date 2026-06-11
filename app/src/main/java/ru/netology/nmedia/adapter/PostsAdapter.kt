@@ -56,12 +56,11 @@ class PostsAdapter(
                 author.text = post.author
                 published.text = post.published
                 content.text = post.content
-                // Здесь применяем форматирование
-                likeCount.text = formatCount(post.likes)
-                repostCount.text = formatCount(post.reposts)
-                like.setImageResource(
-                    if (post.likeByMe) R.drawable.ic_hart_red else R.drawable.ic_hart
-                )
+
+                like.text = formatCount(post.likes)
+                repost.text = formatCount(post.reposts)
+                like.isChecked = post.likeByMe
+                like.text = formatCount(post.likes)
 
                 menu.setOnClickListener {
                     PopupMenu(it.context, it).apply {
