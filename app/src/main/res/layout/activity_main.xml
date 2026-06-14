@@ -9,93 +9,26 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintBottom_toTopOf="@id/divider"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0"
         tools:listitem="@layout/card_post" />
 
-    <View
-        android:id="@+id/divider"
-        android:layout_width="0dp"
-        android:layout_height="1dp"
-        android:background="#DDDDDD"
-        app:layout_constraintBottom_toTopOf="@id/edit_title"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <TextView
-        android:id="@+id/edit_title"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:paddingStart="@dimen/common_spacing"
-        android:paddingEnd="@dimen/common_spacing"
-        android:paddingTop="@dimen/common_spacing"
-        android:text="Edit Message"
-        android:textColor="?attr/colorPrimary"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@id/edit_label"
-        app:layout_constraintEnd_toStartOf="@id/cancel_edit"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <TextView
-        android:id="@+id/edit_label"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/common_spacing"
-        android:textColor="?attr/colorPrimary"
-        app:layout_constraintBottom_toTopOf="@id/content"
-        app:layout_constraintEnd_toStartOf="@id/cancel_edit"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:text="Оригинальный текст поста" />
-
-    <ImageButton
-        android:id="@+id/cancel_edit"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:background="@android:color/transparent"
-        android:padding="12dp"
-        android:tint="?attr/colorControlNormal"
-        app:layout_constraintBottom_toBottomOf="@id/edit_label"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/edit_title"
-        app:srcCompat="@drawable/outline_360_24" />
-
-    <androidx.constraintlayout.widget.Group
-        android:id="@+id/edit_group"
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/add"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:constraint_referenced_ids="edit_title,edit_label,cancel_edit" />
-
-    <EditText
-        android:id="@+id/content"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorSurface"
-        android:gravity="center_vertical"
-        android:hint="@string/hint"
-        android:importantForAutofill="no"
-        android:inputType="textMultiLine"
-        android:minHeight="48dp"
-        android:padding="@dimen/common_spacing"
-        android:textColorHint="#888888"
+        android:contentDescription="@string/description_post_save"
+        app:srcCompat="@drawable/ic_ok_24"
+        app:backgroundTint="?attr/colorSurface"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/save"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <ImageView
-        android:id="@+id/save"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:padding="12dp"
-        android:tint="?attr/colorControlNormal"
-        app:layout_constraintBottom_toBottomOf="@id/content"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/content"
-        app:srcCompat="@drawable/baseline_check_circle_outline_24" />
+        android:layout_margin="16dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

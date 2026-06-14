@@ -68,12 +68,45 @@
         app:layout_constraintEnd_toEndOf="parent"
         tools:text="@sample/posts.json/data/content" />
 
+
+    <ImageButton
+        android:id="@+id/video_play"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:background="#88000000"
+        android:padding="12dp"
+        android:src="@drawable/ic_play"
+        android:visibility="gone"
+        android:elevation="4dp"
+        app:layout_constraintBottom_toBottomOf="@id/video_preview"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/video_preview"
+        tools:visibility="visible"
+        />
+
+
+    <ImageView
+        android:id="@+id/video_preview"
+        android:layout_width="0dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="@dimen/padding"
+        android:scaleType="centerCrop"
+        android:src="@drawable/post_avatar_drawable"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/content"
+        tools:visibility="visible" />
+
+
+
     <androidx.constraintlayout.widget.Barrier
         android:id="@+id/bottom_barrier"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:barrierDirection="bottom"
-        app:constraint_referenced_ids="content" />
+        app:constraint_referenced_ids="content,video_preview" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/like"
@@ -81,8 +114,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/padding"
-        android:contentDescription="@string/description_post_like"
         android:checkable="true"
+        android:contentDescription="@string/description_post_like"
         app:icon="@drawable/ic_like_selector"
         app:iconTint="@color/like_selector"
         app:layout_constraintStart_toStartOf="parent"
@@ -96,12 +129,12 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:contentDescription="@string/description_post_repost"
+        android:textColor="?attr/colorControlNormal"
         app:icon="@drawable/ic_repost"
         app:iconTint="?attr/colorControlNormal"
         app:layout_constraintBottom_toBottomOf="@id/like"
         app:layout_constraintStart_toEndOf="@id/like"
         app:layout_constraintTop_toTopOf="@id/like"
-        android:textColor="?attr/colorControlNormal"
         tools:text="0" />
 
     <ImageView

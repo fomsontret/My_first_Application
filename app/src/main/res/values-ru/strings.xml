@@ -6,4 +6,5 @@
     <string name="error_empty_text">Текст пустой</string>
     <string name="remove">Удалить</string>
     <string name="edit">Редактировать</string>
+    <string name="description_post_save" />
 </resources>

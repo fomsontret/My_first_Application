@@ -75,7 +75,8 @@ class PostRepositoryImpl : PostRepository {
             content = "Привет, это новая Нетология!...",
             likes = 109,
             likeByMe = false,
-            reposts = 5399
+            reposts = 5399,
+            video = "https://rutube.ru/video/6550a91e7e523f9503bed47e4c46d0cb"
         )
     )
 
