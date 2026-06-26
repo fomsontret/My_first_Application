@@ -40,4 +40,6 @@ class PostViewModel(application : Application) : AndroidViewModel(application) {
     fun cancelEdit() {
         edited.value = emptyPost
     }
+
+    fun getById(id: Long): Post? = data.value?.find { it.id == id }
 }
