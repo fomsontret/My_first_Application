@@ -3,6 +3,7 @@ import org.gradle.kotlin.dsl.implementation
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.ksp)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -51,6 +52,9 @@ dependencies {
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.androidx.room.runtime)
+    implementation("com.google.android.gms:play-services-tasks:18.4.1")
+    implementation(platform(libs.firebase.bom))
+    implementation("com.google.firebase:firebase-messaging")
     ksp(libs.androidx.room.compiler)
     implementation(libs.material)
     testImplementation(libs.junit)

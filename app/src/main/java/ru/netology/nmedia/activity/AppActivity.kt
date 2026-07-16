@@ -1,6 +1,8 @@
 package ru.netology.nmedia.activity
 
+import android.Manifest
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -8,6 +10,8 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.findNavController
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.messaging.FirebaseMessaging
+import com.google.firebase.messaging.FirebaseMessagingService
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.ActivityAppBinding
 import ru.netology.nmedia.fragment.NewPostFragment.Companion.textArg
@@ -24,6 +28,14 @@ class AppActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        FirebaseMessaging.getInstance().token.addOnSuccessListener {
+            println(it)
+        }
+            .addOnFailureListener {
+                it.printStackTrace()
+            }
+
 
         intent?.let {
             if (it.action != Intent.ACTION_SEND) {
@@ -45,6 +57,10 @@ class AppActivity : AppCompatActivity() {
                     textArg = text
                 }
             )
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1000)
         }
     }
 }

@@ -1,1 +1,2 @@
-/build
+# .gitignore
+google-services.json
