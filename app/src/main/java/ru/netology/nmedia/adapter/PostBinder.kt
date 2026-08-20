@@ -8,9 +8,9 @@ import ru.netology.nmedia.dto.Post
 
 fun CardPostBinding.bindPost(post: Post, listener: PostListener) {
     author.text = post.author
-    published.text = post.published
+    published.text = post.published.toString() // ← ИСПРАВЛЕНО: Long → String через toString()
     content.text = post.content
-    like.isChecked = post.likeByMe
+    like.isChecked = post.likedByMe
     like.text = formatCount(post.likes)
     repost.text = formatCount(post.reposts)
 
