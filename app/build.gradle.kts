@@ -35,6 +35,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            manifestPlaceholders["usesCleartextTraffic"] = false
+        }
+        debug {
+            manifestPlaceholders["usesCleartextTraffic"] = true
         }
     }
     compileOptions {
@@ -52,9 +56,10 @@ dependencies {
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.androidx.room.runtime)
-    implementation("com.google.android.gms:play-services-tasks:18.4.1")
+    implementation(libs.play.services.tasks)
     implementation(platform(libs.firebase.bom))
-    implementation("com.google.firebase:firebase-messaging")
+    implementation(libs.firebase.messaging)
+    implementation(libs.okhttp)
     ksp(libs.androidx.room.compiler)
     implementation(libs.material)
     testImplementation(libs.junit)

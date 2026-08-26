@@ -26,7 +26,7 @@ class NewPostFragment : Fragment() {
         }
 
         binding.cancelEdit.setOnClickListener {
-            viewModel.cancelEdit()
+            viewModel.edited
             findNavController().navigateUp()
         }
 

@@ -31,7 +31,7 @@ import ru.netology.nmedia.dto.Post
         published = published,
         content = content,
         likes = likes,
-        likeByMe = likeByMe,
+        likedByMe = likeByMe,
         reposts = reposts,
         video = video
     )
@@ -43,7 +43,7 @@ import ru.netology.nmedia.dto.Post
                     published = published,
                     content = content,
                     likes = likes,
-                    likeByMe = likeByMe,
+                    likeByMe = likedByMe,
                     reposts = reposts,
                     video = video
                 )
