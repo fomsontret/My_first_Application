@@ -1,6 +1,7 @@
 [versions]
 agp = "9.2.1"
 firebaseBom = "34.15.0"
+glide = "5.0.9"
 ksp = "2.3.7"
 coreKtx = "1.10.1"
 junit = "4.13.2"
@@ -26,6 +27,7 @@ androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-messaging = { module = "com.google.firebase:firebase-messaging" }
 firebase-messanging = { module = "com.google.firebase:firebase-messaging" }
+glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
