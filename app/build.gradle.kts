@@ -48,6 +48,8 @@ android {
 }
 
 dependencies {
+
+    implementation("com.github.bumptech.glide:glide:4.16.0")
     implementation(libs.ads.mobile.sdk)
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.appcompat)
