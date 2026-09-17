@@ -1,9 +1,13 @@
 package ru.netology.nmedia.viewmodel
 
 import android.app.Application
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import ru.netology.media.util.SingleLiveEvent
+import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.repository.PostRepository
@@ -23,7 +27,10 @@ private val empty = Post(
 
 class PostViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository: PostRepository = PostRepositoryImpl()
+    private val repository: PostRepository =
+        PostRepositoryImpl(
+            AppDb.getInstance(application)
+        )
 
     private val _data = MutableLiveData(FeedModel())
     val data: LiveData<FeedModel>
@@ -35,13 +42,13 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     val postCreated: LiveData<Unit>
         get() = _postCreated
 
-    init {
-        loadPosts()
-    }
-
     private val _error = SingleLiveEvent<Unit>()
     val error: LiveData<Unit>
         get() = _error
+
+    init {
+        loadPosts()
+    }
 
     fun loadPosts() {
         viewModelScope.launch {
@@ -68,6 +75,46 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun likeById(id: Long) {
+        viewModelScope.launch {
+            try {
+                repository.likeById(id)
+
+                loadPosts()
+            } catch (e: IOException) {
+                _data.value = _data.value?.copy(
+                    error = true
+                )
+            }
+        }
+    }
+
+    fun removeById(id: Long) {
+        viewModelScope.launch {
+            try {
+                repository.removeById(id)
+
+                loadPosts()
+            } catch (e: IOException) {
+                _data.value = _data.value?.copy(
+                    error = true
+                )
+            }
+        }
+    }
+
+    fun repost(id: Long) {
+        viewModelScope.launch {
+            try {
+                repository.repost(id)
+            } catch (e: IOException) {
+                _data.value = _data.value?.copy(
+                    error = true
+                )
+            }
+        }
+    }
+
     fun save(content: String) {
         val trimmed = content.trim()
 
@@ -82,13 +129,11 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 repository.save(updatedPost)
 
-                // Сохраняем только после успешного ответа сервера
                 edited.value = empty
                 _postCreated.value = Unit
 
                 loadPosts()
             } catch (e: IOException) {
-                // Пост не сохранился — остаёмся на экране
                 _error.value = Unit
             }
         }
@@ -98,16 +143,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         edited.value = post
     }
 
-    fun repost(id: Long) {
-        viewModelScope.launch {
-            try {
-                repository.repost(id)
-            } catch (e: IOException) {
-                _data.value = _data.value?.copy(error = true)
-            }
-        }
-    }
-
     fun changeContent(content: String) {
         val text = content.trim()
 
@@ -115,81 +150,8 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
 
-        edited.value = edited.value?.copy(content = text)
-    }
-
-    fun likeById(id: Long) {
-        val oldPosts = _data.value?.posts.orEmpty()
-        val post = oldPosts.firstOrNull { it.id == id } ?: return
-
-        val updatedPost = post.copy(
-            likedByMe = !post.likedByMe,
-            likes = if (post.likedByMe) {
-                post.likes - 1
-            } else {
-                post.likes + 1
-            }
+        edited.value = edited.value?.copy(
+            content = text
         )
-
-        val newPosts = oldPosts.map {
-            if (it.id == id) updatedPost else it
-        }
-
-        // Оптимистически обновляем UI
-        _data.value = _data.value?.copy(
-            posts = newPosts,
-            error = false
-        )
-
-        viewModelScope.launch {
-            try {
-                // Отправляем изменение на сервер
-                val serverPost = repository.likeById(id)
-
-                // Получаем актуальное состояние с сервера
-                val postsFromServer = _data.value?.posts.orEmpty().map {
-                    if (it.id == id) serverPost else it
-                }
-
-                _data.value = _data.value?.copy(
-                    posts = postsFromServer
-                )
-            } catch (e: IOException) {
-                // Сервер не принял изменение —
-                // возвращаем старое состояние
-                _data.value = _data.value?.copy(
-                    posts = oldPosts,
-                    error = true
-                )
-            }
-        }
-    }
-
-    fun removeByID(id: Long) {
-        val oldPosts = _data.value?.posts.orEmpty()
-
-        if (oldPosts.none { it.id == id }) {
-            return
-        }
-
-        val updatedPosts = oldPosts.filter { it.id != id }
-
-        _data.value = _data.value?.copy(
-            posts = updatedPosts,
-            empty = updatedPosts.isEmpty(),
-            error = false
-        )
-
-        viewModelScope.launch {
-            try {
-                repository.removeByID(id)
-            } catch (e: IOException) {
-                _data.value = _data.value?.copy(
-                    posts = oldPosts,
-                    empty = oldPosts.isEmpty(),
-                    error = true
-                )
-            }
-        }
     }
 }

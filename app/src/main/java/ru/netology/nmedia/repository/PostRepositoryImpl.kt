@@ -1,12 +1,16 @@
 package ru.netology.nmedia.repository
 
 import ru.netology.nmedia.api.PostsApi
+import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Post
 import java.io.IOException
 
-class PostRepositoryImpl : PostRepository {
+class PostRepositoryImpl(
+    private val db: AppDb
+) : PostRepository {
 
     private val api = PostsApi.retrofitService
+    private val dao = db.postDao
 
     override suspend fun getAll(): List<Post> {
         val response = api.getAll()
@@ -17,35 +21,43 @@ class PostRepositoryImpl : PostRepository {
             )
         }
 
-        return response.body() ?: emptyList()
+        val posts = response.body() ?: emptyList()
+
+        posts.forEach { post ->
+            dao.save(
+                ru.netology.nmedia.entity.PostEntity.fromDto(post)
+            )
+        }
+
+        return posts
     }
 
     override suspend fun likeById(id: Long): Post {
-        val postResponse = api.getById(id)
-
-        if (!postResponse.isSuccessful) {
-            throw IOException(
-                "Не удалось получить пост: ${postResponse.code()}"
-            )
-        }
-
-        val post = postResponse.body()
+        val post = dao.getById(id)
             ?: throw IOException("Пост с id=$id не найден")
 
-        val response = if (post.likedByMe) {
-            api.dislikeById(id)
-        } else {
-            api.likeById(id)
-        }
+        dao.likeById(id)
 
-        if (!response.isSuccessful) {
-            throw IOException(
-                "Ошибка изменения лайка: ${response.code()}"
-            )
-        }
+        try {
+            val response = if (post.likeByMe) {
+                api.dislikeById(id)
+            } else {
+                api.likeById(id)
+            }
 
-        return response.body()
-            ?: throw IOException("Сервер вернул пустой ответ")
+            if (!response.isSuccessful) {
+                throw IOException(
+                    "Ошибка изменения лайка: ${response.code()}"
+                )
+            }
+
+            return response.body()
+                ?: throw IOException("Сервер вернул пустой ответ")
+
+        } catch (e: IOException) {
+            dao.save(post)
+            throw e
+        }
     }
 
     override suspend fun repost(id: Long) {
@@ -54,13 +66,26 @@ class PostRepositoryImpl : PostRepository {
         )
     }
 
-    override suspend fun removeByID(id: Long) {
-        val response = api.removeById(id)
+    override suspend fun removeById(id: Long) {
+        val post = dao.getById(id)
+            ?: throw IOException("Пост с id=$id не найден")
 
-        if (!response.isSuccessful) {
-            throw IOException(
-                "Ошибка удаления: ${response.code()}"
-            )
+
+        dao.removeById(id)
+
+        try {
+
+            val response = api.removeById(id)
+
+            if (!response.isSuccessful) {
+                throw IOException(
+                    "Ошибка удаления: ${response.code()}"
+                )
+            }
+
+        } catch (e: IOException) {
+            dao.save(post)
+            throw e
         }
     }
 
@@ -70,6 +95,12 @@ class PostRepositoryImpl : PostRepository {
         if (!response.isSuccessful) {
             throw IOException(
                 "Ошибка сохранения: ${response.code()}"
+            )
+        }
+
+        response.body()?.let {
+            dao.save(
+                ru.netology.nmedia.entity.PostEntity.fromDto(it)
             )
         }
     }
