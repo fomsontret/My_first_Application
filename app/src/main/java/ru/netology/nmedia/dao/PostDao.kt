@@ -4,13 +4,16 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Upsert
-import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.entity.PostEntity
 
 @Dao
 interface PostDao {
+
     @Query("SELECT * FROM posts ORDER BY id DESC")
     fun getAll(): LiveData<List<PostEntity>>
+
+    @Query("SELECT * FROM posts WHERE id = :id")
+    fun getById(id: Long): PostEntity?
 
     @Upsert
     fun save(post: PostEntity)
