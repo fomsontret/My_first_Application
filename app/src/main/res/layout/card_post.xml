@@ -68,6 +68,19 @@
         app:layout_constraintEnd_toEndOf="parent"
         tools:text="@sample/posts.json/data/content" />
 
+    <ImageView
+        android:id="@+id/post_image"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/padding"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
+        android:visibility="gone"
+        android:contentDescription="@string/description_post_image"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/content"
+        tools:visibility="visible" />
 
     <ImageButton
         android:id="@+id/video_play"
@@ -82,9 +95,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/video_preview"
-        tools:visibility="visible"
-        />
-
+        tools:visibility="visible" />
 
     <ImageView
         android:id="@+id/video_preview"
@@ -96,17 +107,15 @@
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/content"
+        app:layout_constraintTop_toBottomOf="@id/post_image"
         tools:visibility="visible" />
-
-
 
     <androidx.constraintlayout.widget.Barrier
         android:id="@+id/bottom_barrier"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:barrierDirection="bottom"
-        app:constraint_referenced_ids="content,video_preview" />
+        app:constraint_referenced_ids="content,post_image,video_preview" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/like"

@@ -19,6 +19,7 @@ interface PostListener {
     fun onEdit(post: Post)
     fun onRemove(post: Post)
     fun onOpenPost(post: Post)
+    fun onOpenImage(url: String)
 }
 
 class PostsAdapter(
@@ -73,13 +74,14 @@ object PostDiffCallback : DiffUtil.ItemCallback<Post>() {
     override fun areItemsTheSame(
         oldItem: Post,
         newItem: Post
-    ) = oldItem.id == newItem.id
+    ): Boolean {
+        return oldItem.id == newItem.id
+    }
 
     override fun areContentsTheSame(
         oldItem: Post,
         newItem: Post
-    ) = oldItem == newItem
+    ): Boolean {
+        return oldItem == newItem
+    }
 }
-
-
-
