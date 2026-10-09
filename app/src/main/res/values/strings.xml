@@ -24,4 +24,5 @@
     <string name="no_post">No post</string>
     <string name="network_error">Network Error</string>
     <string name="retry">Retry</string>
+    <string name="description_post_image" />
 </resources>

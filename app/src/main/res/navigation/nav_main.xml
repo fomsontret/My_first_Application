@@ -10,12 +10,19 @@
         android:name="ru.netology.nmedia.fragment.FeedFragment"
         android:label="FeedFragment"
         tools:layout="@layout/fragment_feed">
+
         <action
             android:id="@+id/action_feedFragment_to_newPostFragment"
             app:destination="@id/newPostFragment" />
+
         <action
             android:id="@+id/action_feedFragment_to_postFragment"
             app:destination="@id/postFragment" />
+
+        <action
+            android:id="@+id/action_feedFragment_to_photoFragment"
+            app:destination="@id/photoFragment" />
+
     </fragment>
 
     <fragment
@@ -26,12 +33,20 @@
 
     <fragment
         android:id="@+id/postFragment"
-        android:name="ru.netology.nmedia.fragment.PostFragment"
+        android:name="ru.netology.nmedia.fragment.FeedFragment"
         android:label="PostFragment"
         tools:layout="@layout/fragment_post">
+
         <action
             android:id="@+id/action_postFragment_to_newPostFragment"
             app:destination="@id/newPostFragment" />
+
     </fragment>
+
+    <fragment
+        android:id="@+id/photoFragment"
+        android:name="ru.netology.nmedia.fragment.PhotoFragment"
+        android:label="PhotoFragment"
+        tools:layout="@layout/fragment_photo" />
 
 </navigation>

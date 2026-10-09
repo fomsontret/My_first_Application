@@ -79,8 +79,19 @@ class FeedFragment : Fragment() {
                         }
                     )
                 }
+
+                override fun onOpenImage(url: String) {
+                    findNavController().navigate(
+                        R.id.action_feedFragment_to_photoFragment,
+                        Bundle().apply {
+                            putString("url", url)
+                        }
+                    )
+                }
             }
         )
+
+
 
         binding.list.adapter = adapter
 
