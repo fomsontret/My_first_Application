@@ -3,6 +3,7 @@ package ru.netology.nmedia.repository
 import ru.netology.nmedia.api.PostsApi
 import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.entity.PostEntity
 import java.io.IOException
 
 class PostRepositoryImpl(
@@ -25,11 +26,44 @@ class PostRepositoryImpl(
 
         posts.forEach { post ->
             dao.save(
-                ru.netology.nmedia.entity.PostEntity.fromDto(post)
+                PostEntity.fromDto(post, visible = true)
             )
         }
 
         return posts
+    }
+
+    override suspend fun getNewer(): Int {
+        val lastId = dao.getMaxId() ?: 0
+
+        val response = api.getNewer(lastId)
+
+        if (!response.isSuccessful) {
+            throw IOException(
+                "Ошибка загрузки новых постов: ${response.code()}"
+            )
+        }
+
+        val posts = response.body() ?: emptyList()
+
+        posts.forEach { post ->
+            dao.save(
+                PostEntity.fromDto(
+                    post,
+                    visible = false
+                )
+            )
+        }
+
+        return dao.getNewPostsCount()
+    }
+
+    override suspend fun getNewPostsCount(): Int {
+        return dao.getNewPostsCount()
+    }
+
+    override suspend fun showNewPosts() {
+        dao.showNewPosts()
     }
 
     override suspend fun likeById(id: Long): Post {
@@ -70,11 +104,9 @@ class PostRepositoryImpl(
         val post = dao.getById(id)
             ?: throw IOException("Пост с id=$id не найден")
 
-
         dao.removeById(id)
 
         try {
-
             val response = api.removeById(id)
 
             if (!response.isSuccessful) {
@@ -82,7 +114,6 @@ class PostRepositoryImpl(
                     "Ошибка удаления: ${response.code()}"
                 )
             }
-
         } catch (e: IOException) {
             dao.save(post)
             throw e
@@ -100,7 +131,7 @@ class PostRepositoryImpl(
 
         response.body()?.let {
             dao.save(
-                ru.netology.nmedia.entity.PostEntity.fromDto(it)
+                PostEntity.fromDto(it, visible = true)
             )
         }
     }

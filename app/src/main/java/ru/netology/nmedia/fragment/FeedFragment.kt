@@ -20,31 +20,45 @@ import ru.netology.nmedia.viewmodel.PostViewModel
 class FeedFragment : Fragment() {
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View {
-        val binding = FragmentFeedBinding.inflate(inflater, container, false)
+        val binding = FragmentFeedBinding.inflate(
+            inflater,
+            container,
+            false
+        )
+
         val viewModel: PostViewModel by viewModels(::requireParentFragment)
 
         val adapter = PostsAdapter(
             object : PostListener {
+
                 override fun onLike(post: Post) {
                     viewModel.likeById(post.id)
                 }
 
                 override fun onRepost(post: Post) {
                     viewModel.repost(post.id)
+
                     val intent = Intent().apply {
                         action = Intent.ACTION_SEND
                         type = "text/plain"
                         putExtra(Intent.EXTRA_TEXT, post.content)
                     }
-                    val chooser =
-                        Intent.createChooser(intent, getString(R.string.chooser_share_post))
+
+                    val chooser = Intent.createChooser(
+                        intent,
+                        getString(R.string.chooser_share_post)
+                    )
+
                     startActivity(chooser)
                 }
 
                 override fun onEdit(post: Post) {
                     viewModel.edit(post)
+
                     findNavController().navigate(
                         R.id.action_feedFragment_to_newPostFragment,
                         Bundle().apply {
@@ -67,13 +81,31 @@ class FeedFragment : Fragment() {
                 }
             }
         )
+
         binding.list.adapter = adapter
 
         viewModel.data.observe(viewLifecycleOwner) { state ->
             adapter.submitList(state.posts)
+
             binding.progress.isVisible = state.loading
             binding.emptyText.isVisible = state.empty
             binding.errorGroup.isVisible = state.error
+        }
+
+        viewModel.newPosts.observe(viewLifecycleOwner) { count ->
+            binding.newPosts.isVisible = count > 0
+
+            if (count > 0) {
+                binding.newPosts.text = "Новые посты: $count"
+            }
+        }
+
+        binding.newPosts.setOnClickListener {
+            viewModel.showNewPosts()
+
+            binding.list.post {
+                binding.list.smoothScrollToPosition(0)
+            }
         }
 
         binding.retry.setOnClickListener {
@@ -81,7 +113,9 @@ class FeedFragment : Fragment() {
         }
 
         binding.add.setOnClickListener {
-            findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
+            findNavController().navigate(
+                R.id.action_feedFragment_to_newPostFragment
+            )
         }
 
         return binding.root

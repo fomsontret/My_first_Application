@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ru.netology.media.util.SingleLiveEvent
 import ru.netology.nmedia.db.AppDb
@@ -36,6 +37,10 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     val data: LiveData<FeedModel>
         get() = _data
 
+    private val _newPosts = MutableLiveData(0)
+    val newPosts: LiveData<Int>
+        get() = _newPosts
+
     val edited = MutableLiveData(empty)
 
     private val _postCreated = SingleLiveEvent<Unit>()
@@ -48,6 +53,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         loadPosts()
+        startPolling()
     }
 
     fun loadPosts() {
@@ -69,6 +75,36 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             } catch (e: IOException) {
                 _data.value = _data.value?.copy(
                     loading = false,
+                    error = true
+                )
+            }
+        }
+    }
+
+    private fun startPolling() {
+        viewModelScope.launch {
+            while (true) {
+                delay(10_000)
+
+                try {
+                    val count = repository.getNewer()
+
+                    _newPosts.value = count
+                } catch (e: IOException) {
+                    // Ошибка фоновой загрузки не должна
+                    // показывать основной экран как ошибочный.
+                }
+            }
+        }
+    }
+
+    fun showNewPosts() {
+        viewModelScope.launch {
+            try {
+                repository.showNewPosts()
+                _newPosts.value = 0
+            } catch (e: IOException) {
+                _data.value = _data.value?.copy(
                     error = true
                 )
             }
@@ -155,3 +191,4 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         )
     }
 }
+
