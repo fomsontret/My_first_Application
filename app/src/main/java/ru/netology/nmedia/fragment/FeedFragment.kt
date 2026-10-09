@@ -3,6 +3,9 @@ package ru.netology.nmedia.fragment
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
@@ -19,22 +22,45 @@ import ru.netology.nmedia.viewmodel.PostViewModel
 
 class FeedFragment : Fragment() {
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        menu.add(Menu.NONE, MENU_SIGN_IN, Menu.NONE, "Sign in")
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            MENU_SIGN_IN -> {
+                findNavController().navigate(
+                    R.id.action_feedFragment_to_authFragment
+                )
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val binding = FragmentFeedBinding.inflate(
-            inflater,
-            container,
-            false
-        )
-
+        val binding = FragmentFeedBinding.inflate(inflater, container, false)
         val viewModel: PostViewModel by viewModels(::requireParentFragment)
+
+        // Кнопка авторизации на экране ленты
+        binding.signIn.setOnClickListener {
+            findNavController().navigate(
+                R.id.action_feedFragment_to_authFragment
+            )
+        }
 
         val adapter = PostsAdapter(
             object : PostListener {
-
                 override fun onLike(post: Post) {
                     viewModel.likeById(post.id)
                 }
@@ -52,13 +78,11 @@ class FeedFragment : Fragment() {
                         intent,
                         getString(R.string.chooser_share_post)
                     )
-
                     startActivity(chooser)
                 }
 
                 override fun onEdit(post: Post) {
                     viewModel.edit(post)
-
                     findNavController().navigate(
                         R.id.action_feedFragment_to_newPostFragment,
                         Bundle().apply {
@@ -91,32 +115,13 @@ class FeedFragment : Fragment() {
             }
         )
 
-
-
         binding.list.adapter = adapter
 
         viewModel.data.observe(viewLifecycleOwner) { state ->
             adapter.submitList(state.posts)
-
             binding.progress.isVisible = state.loading
             binding.emptyText.isVisible = state.empty
             binding.errorGroup.isVisible = state.error
-        }
-
-        viewModel.newPosts.observe(viewLifecycleOwner) { count ->
-            binding.newPosts.isVisible = count > 0
-
-            if (count > 0) {
-                binding.newPosts.text = "Новые посты: $count"
-            }
-        }
-
-        binding.newPosts.setOnClickListener {
-            viewModel.showNewPosts()
-
-            binding.list.post {
-                binding.list.smoothScrollToPosition(0)
-            }
         }
 
         binding.retry.setOnClickListener {
@@ -133,6 +138,7 @@ class FeedFragment : Fragment() {
     }
 
     companion object {
+        private const val MENU_SIGN_IN = 1
         var Bundle.textArg by StringArg
     }
 }
