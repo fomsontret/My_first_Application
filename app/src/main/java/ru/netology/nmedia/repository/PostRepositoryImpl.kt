@@ -1,6 +1,6 @@
 package ru.netology.nmedia.repository
 
-import ru.netology.nmedia.api.PostsApi
+import ru.netology.nmedia.api.Api
 import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.entity.PostEntity
@@ -10,7 +10,7 @@ class PostRepositoryImpl(
     private val db: AppDb
 ) : PostRepository {
 
-    private val api = PostsApi.retrofitService
+    private val api = Api.service
     private val dao = db.postDao
 
     override suspend fun getAll(): List<Post> {
@@ -25,9 +25,7 @@ class PostRepositoryImpl(
         val posts = response.body() ?: emptyList()
 
         posts.forEach { post ->
-            dao.save(
-                PostEntity.fromDto(post, visible = true)
-            )
+            dao.save(PostEntity.fromDto(post, visible = true))
         }
 
         return posts
@@ -35,7 +33,6 @@ class PostRepositoryImpl(
 
     override suspend fun getNewer(): Int {
         val lastId = dao.getMaxId() ?: 0
-
         val response = api.getNewer(lastId)
 
         if (!response.isSuccessful) {
@@ -47,20 +44,14 @@ class PostRepositoryImpl(
         val posts = response.body() ?: emptyList()
 
         posts.forEach { post ->
-            dao.save(
-                PostEntity.fromDto(
-                    post,
-                    visible = false
-                )
-            )
+            dao.save(PostEntity.fromDto(post, visible = false))
         }
 
         return dao.getNewPostsCount()
     }
 
-    override suspend fun getNewPostsCount(): Int {
-        return dao.getNewPostsCount()
-    }
+    override suspend fun getNewPostsCount(): Int =
+        dao.getNewPostsCount()
 
     override suspend fun showNewPosts() {
         dao.showNewPosts()
@@ -87,8 +78,7 @@ class PostRepositoryImpl(
 
             return response.body()
                 ?: throw IOException("Сервер вернул пустой ответ")
-
-        } catch (e: IOException) {
+        } catch (e: Exception) {
             dao.save(post)
             throw e
         }
@@ -114,7 +104,7 @@ class PostRepositoryImpl(
                     "Ошибка удаления: ${response.code()}"
                 )
             }
-        } catch (e: IOException) {
+        } catch (e: Exception) {
             dao.save(post)
             throw e
         }
@@ -130,9 +120,7 @@ class PostRepositoryImpl(
         }
 
         response.body()?.let {
-            dao.save(
-                PostEntity.fromDto(it, visible = true)
-            )
+            dao.save(PostEntity.fromDto(it, visible = true))
         }
     }
 }

@@ -11,7 +11,9 @@ import androidx.core.app.NotificationManagerCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
+import com.google.gson.JsonParser
 import ru.netology.nmedia.R
+import ru.netology.nmedia.auth.AppAuth
 import kotlin.random.Random
 
 class FCMService : FirebaseMessagingService() {
@@ -23,41 +25,94 @@ class FCMService : FirebaseMessagingService() {
 
     override fun onCreate() {
         super.onCreate()
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = getString(R.string.channel_remote_name)
-            val descriptionText = getString(R.string.channel_remote_description)
-            val importance = NotificationManager.IMPORTANCE_DEFAULT
-            val channel = NotificationChannel(channelId, name, importance).apply {
-                description = descriptionText
+            val channel = NotificationChannel(
+                channelId,
+                getString(R.string.channel_remote_name),
+                NotificationManager.IMPORTANCE_DEFAULT
+            ).apply {
+                description = getString(R.string.channel_remote_description)
             }
-            val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+
+            val manager =
+                getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+
             manager.createNotificationChannel(channel)
         }
     }
 
     override fun onMessageReceived(message: RemoteMessage) {
-        val action = message.data[action] ?: return
+        android.util.Log.d("FCM_DEBUG", "Push получен: ${message.data}")
+
+        val rawContent = message.data[content]
+
+        // Сервер может прислать recipientId отдельным полем
+        // либо внутри JSON в поле content.
+        val json = rawContent?.let {
+            runCatching {
+                JsonParser.parseString(it).asJsonObject
+            }.getOrNull()
+        }
+
+        val recipientId = message.data["recipientId"]?.toLongOrNull()
+            ?: json?.get("recipientId")
+                ?.takeUnless { it.isJsonNull }
+                ?.let { element ->
+                    runCatching { element.asLong }.getOrNull()
+                }
+
+        val currentId = AppAuth.getInstance().authStateFlow.value.id
+
+        android.util.Log.d(
+            "FCM_DEBUG",
+            "recipientId=$recipientId, currentId=$currentId"
+        )
+
+        // Если recipientId отсутствует — массовая рассылка.
+        // Если recipientId не совпадает с текущим ID —
+        // повторно отправляем FCM-токен и не показываем уведомление.
+        if (recipientId != null && recipientId != currentId) {
+            android.util.Log.d(
+                "FCM_DEBUG",
+                "ID не совпали — повторно отправляем FCM-токен"
+            )
+
+            AppAuth.getInstance().sendPushToken()
+            return
+        }
+
+        val actionValue = message.data[action] ?: return
 
         val parsedAction = runCatching {
-            Action.valueOf(action)
+            Action.valueOf(actionValue)
         }.getOrNull() ?: return
 
         when (parsedAction) {
-            Action.LIKE ->
-                handleLike(
-                    gson.fromJson(message.data[content], Like::class.java)
-                )
+            Action.LIKE -> {
+                val like = runCatching {
+                    gson.fromJson(rawContent, Like::class.java)
+                }.getOrNull() ?: return
 
-            Action.NEW_POST ->
-                handleNewPost(
-                    gson.fromJson(message.data[content], NewPost::class.java)
-                )
+                handleLike(like)
+            }
+
+            Action.NEW_POST -> {
+                val post = runCatching {
+                    gson.fromJson(rawContent, NewPost::class.java)
+                }.getOrNull() ?: return
+
+                handleNewPost(post)
+            }
         }
     }
 
-
     override fun onNewToken(token: String) {
-        println(token)
+        super.onNewToken(token)
+
+        android.util.Log.d("FCM_TOKEN", "Получен новый FCM-токен")
+
+        AppAuth.getInstance().sendPushToken(token)
     }
 
     private fun handleNewPost(content: NewPost) {
@@ -82,7 +137,7 @@ class FCMService : FirebaseMessagingService() {
                 getString(
                     R.string.notification_user_liked,
                     content.userName,
-                    content.postAuthor,
+                    content.postAuthor
                 )
             )
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
@@ -91,13 +146,14 @@ class FCMService : FirebaseMessagingService() {
         notify(notification)
     }
 
-
-
     private fun notify(notification: Notification) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
-            checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+        if (
+            Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+            checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) ==
+            PackageManager.PERMISSION_GRANTED
         ) {
-            NotificationManagerCompat.from(this).notify(Random.nextInt(100_000), notification)
+            NotificationManagerCompat.from(this)
+                .notify(Random.nextInt(100_000), notification)
         }
     }
 }

@@ -19,6 +19,9 @@ import ru.netology.nmedia.fragment.NewPostFragment.Companion.textArg
 class AppActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        ru.netology.nmedia.auth.AppAuth.initApp(applicationContext)
+
         enableEdgeToEdge()
         val binding = ActivityAppBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -28,11 +31,19 @@ class AppActivity : AppCompatActivity() {
             insets
         }
 
-        FirebaseMessaging.getInstance().token.addOnSuccessListener {
-            println(it)
-        }
-            .addOnFailureListener {
-                it.printStackTrace()
+        com.google.firebase.messaging.FirebaseMessaging
+            .getInstance()
+            .token
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    android.util.Log.d("FCM_TOKEN", task.result)
+                } else {
+                    android.util.Log.e(
+                        "FCM_TOKEN",
+                        "Не удалось получить токен",
+                        task.exception
+                    )
+                }
             }
 
 
