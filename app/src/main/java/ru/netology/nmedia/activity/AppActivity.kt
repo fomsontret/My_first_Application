@@ -19,6 +19,9 @@ import ru.netology.nmedia.fragment.NewPostFragment.Companion.textArg
 class AppActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        ru.netology.nmedia.auth.AppAuth.initApp(applicationContext)
+
         enableEdgeToEdge()
         val binding = ActivityAppBinding.inflate(layoutInflater)
         setContentView(binding.root)
