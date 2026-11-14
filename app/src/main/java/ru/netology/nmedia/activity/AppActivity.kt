@@ -31,11 +31,19 @@ class AppActivity : AppCompatActivity() {
             insets
         }
 
-        FirebaseMessaging.getInstance().token.addOnSuccessListener {
-            println(it)
-        }
-            .addOnFailureListener {
-                it.printStackTrace()
+        com.google.firebase.messaging.FirebaseMessaging
+            .getInstance()
+            .token
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    android.util.Log.d("FCM_TOKEN", task.result)
+                } else {
+                    android.util.Log.e(
+                        "FCM_TOKEN",
+                        "Не удалось получить токен",
+                        task.exception
+                    )
+                }
             }
 
 
