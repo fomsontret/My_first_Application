@@ -1,4 +1,4 @@
-package ru.netology.nmedia.activity
+﻿package ru.netology.nmedia.activity
 
 import android.Manifest
 import android.content.Intent
@@ -11,12 +11,21 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.messaging.FirebaseMessaging
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.ActivityAppBinding
 import ru.netology.nmedia.fragment.NewPostFragment.Companion.textArg
+import javax.inject.Inject
 
-
+@AndroidEntryPoint
 class AppActivity : AppCompatActivity() {
+
+    @Inject
+    lateinit var firebaseMessaging: FirebaseMessaging
+
+    @Inject
+    lateinit var googleApiAvailability: com.google.android.gms.common.GoogleApiAvailability
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -31,8 +40,7 @@ class AppActivity : AppCompatActivity() {
             insets
         }
 
-        com.google.firebase.messaging.FirebaseMessaging
-            .getInstance()
+        firebaseMessaging
             .token
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
@@ -40,12 +48,11 @@ class AppActivity : AppCompatActivity() {
                 } else {
                     android.util.Log.e(
                         "FCM_TOKEN",
-                        "Не удалось получить токен",
+                        "РќРµ СѓРґР°Р»РѕСЃСЊ РїРѕР»СѓС‡РёС‚СЊ С‚РѕРєРµРЅ",
                         task.exception
                     )
                 }
             }
-
 
         intent?.let {
             if (it.action != Intent.ACTION_SEND) {

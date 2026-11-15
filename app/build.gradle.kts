@@ -1,14 +1,23 @@
-import org.gradle.kotlin.dsl.implementation
-
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.hilt)
     alias(libs.plugins.kotlin.ksp)
     id("com.google.gms.google-services")
 }
 
 android {
     namespace = "ru.netology.nmedia"
-    compileSdk = 36
+    compileSdk = 34
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
 
     buildFeatures {
         viewBinding = true
@@ -18,10 +27,9 @@ android {
     defaultConfig {
         applicationId = "ru.netology.nmedia"
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -41,18 +49,15 @@ android {
         }
     }
 
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-    buildToolsVersion = "36.0.0"
 }
 
 dependencies {
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
-    implementation("com.squareup.retrofit2:retrofit:3.0.0")
-    implementation("com.squareup.retrofit2:converter-gson:3.0.0")
-    implementation(libs.glide.v4160)
+
+
+    implementation(libs.glide)
     implementation(libs.ads.mobile.sdk)
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.appcompat)
@@ -65,10 +70,21 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.messaging)
     implementation(libs.okhttp)
+
+
     ksp(libs.androidx.room.compiler)
+
     implementation(libs.material)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
     implementation(libs.gson)
+
+
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+}
+
+kotlin {
+    jvmToolchain(17)
 }
