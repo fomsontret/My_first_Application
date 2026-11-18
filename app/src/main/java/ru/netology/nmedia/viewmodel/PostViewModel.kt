@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ru.netology.media.util.SingleLiveEvent
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.FeedModel
@@ -54,6 +55,13 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     init {
         loadPosts()
         startPolling()
+
+        viewModelScope.launch {
+            AppAuth.getInstance().authStateFlow.collect {
+                repository.clear()
+                loadPosts()
+            }
+        }
     }
 
     fun loadPosts() {
