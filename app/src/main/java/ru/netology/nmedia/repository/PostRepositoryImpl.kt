@@ -123,4 +123,8 @@ class PostRepositoryImpl(
             dao.save(PostEntity.fromDto(it, visible = true))
         }
     }
+
+    override suspend fun clear() {
+        dao.clear()
+    }
 }

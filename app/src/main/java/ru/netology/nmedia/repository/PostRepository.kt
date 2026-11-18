@@ -12,4 +12,6 @@ interface PostRepository {
     suspend fun repost(id: Long)
     suspend fun removeById(id: Long)
     suspend fun save(post: Post)
+
+    suspend fun clear()
 }
